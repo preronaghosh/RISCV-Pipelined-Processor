@@ -122,6 +122,8 @@ begin
             imm[11] =  inst[20];
             imm[10:1] = inst[30:21];
             imm[20] = inst[31];
+            // zero extends
+            imm[31:21] = 0;
         end
 
         // I type JALR
@@ -194,6 +196,7 @@ begin
                     shamt = inst[24:20];
                 else if(inst[30] == 1'b1) // srai
                     shamt = inst[24:20];
+                    funct7 = 7'b0100000;
             end 
             else 
             begin
