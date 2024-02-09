@@ -26,7 +26,7 @@ begin
     imm = 0;
 end
 
-always @(inst)
+always @(inst or f_pc)
 begin
     // fixed fields
     opcode = inst[6:0];
