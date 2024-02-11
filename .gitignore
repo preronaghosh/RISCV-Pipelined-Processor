@@ -1,1 +1,2 @@
-*.class
+verif/sim/
+bin_verilator

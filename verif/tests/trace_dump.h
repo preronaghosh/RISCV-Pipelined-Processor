@@ -31,5 +31,20 @@ always @(negedge clock) begin
     dut.core.`D_SHAMT);
   $fflush(__trace_fd);
   
+  // R stage trace dump
+  $fwrite(__trace_fd, "[R] %x %x %x %x\n",
+    dut.core.`R_READ_RS1,
+    dut.core.`R_READ_RS2,
+    dut.core.`R_READ_RS1_DATA,
+    dut.core.`R_READ_RS2_DATA);
+  $fflush(__trace_fd);
+  
+  // E stage trace dump
+  $fwrite(__trace_fd, "[E] %x %x %x\n",
+    dut.core.`E_PC,
+    dut.core.`E_ALU_RES,
+    dut.core.`E_BR_TAKEN);
+  $fflush(__trace_fd);
+  
   end
 end

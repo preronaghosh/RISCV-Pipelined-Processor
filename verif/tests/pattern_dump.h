@@ -2,7 +2,7 @@
 * The following code dumps the traces as patterns
 */
 integer __dump_fd;
-reg[128 * 2 - 1:0] pattern_dump;
+reg[128 * 4 - 1:0] pattern_dump;
 initial begin
   __dump_fd = $fopen(`PATTERN_DUMP_FILE, "w");
 end
@@ -27,6 +27,21 @@ always @(negedge clock) begin : pattern_dump_proc
     stage[`__D_IMM] = dut.core.`D_IMM;
     stage[`__D_SHAMT] = dut.core.`D_SHAMT;
     pattern_dump[`__D_RNG] = stage;
+    
+    // R stage
+    stage = 128'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    stage[`__R_READ_RS1] = dut.core.`R_READ_RS1;
+    stage[`__R_READ_RS2] = dut.core.`R_READ_RS2;
+    stage[`__R_READ_RS1_DATA] = dut.core.`R_READ_RS1_DATA;
+    stage[`__R_READ_RS2_DATA] = dut.core.`R_READ_RS2_DATA;
+    pattern_dump[`__R_RNG] = stage;
+    
+    // E stage
+    stage = 128'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    stage[`__E_PC] = dut.core.`E_PC;
+    stage[`__E_ALU_RES] = dut.core.`E_ALU_RES;
+    stage[`__E_BR_TAKEN] = dut.core.`E_BR_TAKEN;
+    pattern_dump[`__E_RNG] = stage;
     
     $fwrite(__dump_fd, "%0x\n", pattern_dump);
   end

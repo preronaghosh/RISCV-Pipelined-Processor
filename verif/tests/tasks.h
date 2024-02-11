@@ -72,3 +72,66 @@ task check_D;
     end
   end
 endtask
+
+task check_R;
+  input integer idx;
+  output reg res;
+  output reg[4095:0] msg;
+  begin : check_R_func
+    reg[4:0]        read_rs1;
+    reg[4:0]        read_rs2;
+    reg[31:0]       read_rs1_data;
+    reg[31:0]       read_rs2_data;
+ 
+    reg[127:0] p;
+    p = pattern[idx][`__R_RNG];
+    
+    read_rs1        = p[`__R_READ_RS1];
+    read_rs2        = p[`__R_READ_RS2];
+    read_rs1_data   = p[`__R_READ_RS1_DATA];
+    read_rs2_data   = p[`__R_READ_RS2_DATA];
+    if(
+      (^read_rs1 !== 1'bx && read_rs1 !== dut.core.`R_READ_RS1) ||
+      (^read_rs2 !== 1'bx && read_rs2 !== dut.core.`R_READ_RS2) ||
+      (^read_rs1_data !== 1'bx && read_rs1_data !== dut.core.`R_READ_RS1_DATA) ||
+      (^read_rs2_data !== 1'bx && read_rs2_data !== dut.core.`R_READ_RS2_DATA) 
+    ) begin
+      $sformat(msg, "R stage mismatch: expected READ_RS1=%x, READ_RS2=%x, READ_RS1_DATA=%x, READ_RS2_DATA=%x, got READ_RS1=%x, READ_RS2=%x, READ_RS1_DATA=%x, READ_RS2_DATA=%x", 
+        read_rs1, read_rs2, read_rs1_data, read_rs2_data,
+        dut.core.`R_READ_RS1, dut.core.`R_READ_RS2, dut.core.`R_READ_RS1_DATA, dut.core.`R_READ_RS2_DATA);
+      res = 0;
+    end else begin
+      res = 1;
+    end
+  end
+endtask
+
+task check_E;
+  input integer idx;
+  output reg res;
+  output reg[4095:0] msg;
+  begin : check_E_func
+    reg[31:0]       pc;
+    reg[31:0]       alu_res;
+    reg[0:0]        br_taken;
+ 
+    reg[127:0] p;
+    p = pattern[idx][`__E_RNG];
+    
+    pc              = p[`__E_PC];
+    alu_res         = p[`__E_ALU_RES];
+    br_taken        = p[`__E_BR_TAKEN];
+    if(
+      (^pc !== 1'bx && pc !== dut.core.`E_PC) ||
+      (^alu_res !== 1'bx && alu_res !== dut.core.`E_ALU_RES) ||
+      (^br_taken !== 1'bx && br_taken !== dut.core.`E_BR_TAKEN) 
+    ) begin
+      $sformat(msg, "E stage mismatch: expected PC=%x, ALU_RES=%x, BR_TAKEN=%x, got PC=%x, ALU_RES=%x, BR_TAKEN=%x", 
+        pc, alu_res, br_taken,
+        dut.core.`E_PC, dut.core.`E_ALU_RES, dut.core.`E_BR_TAKEN);
+      res = 0;
+    end else begin
+      res = 1;
+    end
+  end
+endtask
