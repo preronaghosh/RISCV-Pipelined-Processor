@@ -71,7 +71,7 @@ begin
             funct3 = inst[14:12];
             rs1 = inst[19:15];
             rs2 = inst[24:20];
-            imm[0] = 0; 
+            imm[0] = 0;
             imm[4:1] =  inst[11:8];
             imm[10:5] = inst[30:25];
             imm[11] = inst[7];
