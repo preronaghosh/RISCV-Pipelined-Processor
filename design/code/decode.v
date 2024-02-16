@@ -194,6 +194,7 @@ begin
             begin
                 if(inst[30] == 1'b0) // srli
                     shamt = inst[24:20];
+		    funct7 = 7'b0000000;
                 else if(inst[30] == 1'b1) // srai
                     shamt = inst[24:20];
                     funct7 = 7'b0100000;
