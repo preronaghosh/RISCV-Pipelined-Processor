@@ -195,11 +195,11 @@ begin
                 if(inst[30] == 1'b0) // srli
                 begin
                     shamt = inst[24:20];
-				    funct7 = 7'b0000000;
+                    funct7 = 7'b0000000;
                 end
                 else if(inst[30] == 1'b1) // srai
                 begin    
-				    shamt = inst[24:20];
+                    shamt = inst[24:20];
                     funct7 = 7'b0100000;
                 end
             end 
