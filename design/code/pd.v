@@ -66,6 +66,8 @@ reg PCSel;
 reg [1:0] ASel;
 reg [1:0] BSel;
 reg [3:0] ALUSel;
+reg [1:0] WBSel;
+reg UnsignedSel;
 
 reg r_write_enable;
 reg [31:0] r_read_rs1_data;
@@ -74,6 +76,14 @@ reg [4:0] r_read_rs1 = d_rs1;
 reg [4:0] r_read_rs2 = d_rs2;
 reg [4:0] r_write_destination = d_rd;
 reg [31:0] r_write_data;
+
+reg [31:0] m_pc = f_pc;
+reg [31:0] w_pc = f_pc;
+reg [31:0] m_address = e_alu_res;
+
+reg [1:0] access_size;
+reg dmem_rw;
+reg [31:0] mem_data;
 
 control_signals control_signals_0 (
   .inst(f_insn),
@@ -84,7 +94,11 @@ control_signals control_signals_0 (
   .ALUSel(ALUSel),
   .PCSel(PCSel),
   .write_enable(r_write_enable),
-  .branch_taken(e_br_taken)
+  .branch_taken(e_br_taken),
+  .access_size(access_size),
+  .UnsignedSel(UnsignedSel),
+  .dmem_rw(dmem_rw),
+  .WBSel(WBSel)
 );
 
 // Register file
@@ -94,9 +108,11 @@ register_file register_file_0(
   .addr_rs2(r_read_rs2),
   .addr_rd(r_write_destination),
   .data_rd(r_write_data),
-  .write_enable(r_write_enable),
   .data_rs1(r_read_rs1_data),
-  .data_rs2(r_read_rs2_data)
+  .data_rs2(r_read_rs2_data),
+  .write_enable(r_write_enable),
+  .pc(f_pc),
+  .reset(reset)
 );
 
 // Execute stage
@@ -151,6 +167,25 @@ mux_to_alu mux_to_alu_0 (
   .shamt(d_shamt),
   .out1(out1),
   .out2(out2)
+);
+
+// memory and write back stages
+dmemory dmemory_0 (
+  .clock(clock),
+  .addr(e_alu_res),
+  .data_in(r_read_rs2_data),
+  .access_size(access_size),
+  .UnsignedSel(UnsignedSel),
+  .read_write(dmem_rw),
+  .data_out(mem_data)
+);
+
+mux_write_back mux_write_back_0 (
+  .WBSel(WBSel),
+  .mem(mem_data),
+  .alu_result(e_alu_res),
+  .next_pc(f_pc + 4),
+  .wb_result(r_write_data)
 );
 
 endmodule

@@ -46,5 +46,22 @@ always @(negedge clock) begin
     dut.core.`E_BR_TAKEN);
   $fflush(__trace_fd);
   
+  // M stage trace dump
+  $fwrite(__trace_fd, "[M] %x %x %x %x %x\n",
+    dut.core.`M_PC,
+    dut.core.`M_ADDRESS,
+    dut.core.`M_RW,
+    dut.core.`M_SIZE_ENCODED,
+    dut.core.`M_DATA);
+  $fflush(__trace_fd);
+  
+  // W stage trace dump
+  $fwrite(__trace_fd, "[W] %x %x %x %x\n",
+    dut.core.`W_PC,
+    dut.core.`W_ENABLE,
+    dut.core.`W_DESTINATION,
+    dut.core.`W_DATA);
+  $fflush(__trace_fd);
+  
   end
 end

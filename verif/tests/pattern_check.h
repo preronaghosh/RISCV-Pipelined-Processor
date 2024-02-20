@@ -1,4 +1,4 @@
-reg[128 * 4 - 1:0] pattern          [0:`PATTERN_LINE_COUNT-1];
+reg[128 * 6 - 1:0] pattern          [0:`PATTERN_LINE_COUNT-1];
 initial begin:pre_check
   integer res;
   $readmemh(`PATTERN_FILE, pattern);
@@ -27,6 +27,16 @@ always @(negedge clock) begin : tick_check
       $display("%0s", msg);
     end
     check_E(tick, res, msg);
+    correct = correct & res;
+    if(res == 0) begin
+      $display("%0s", msg);
+    end
+    check_M(tick, res, msg);
+    correct = correct & res;
+    if(res == 0) begin
+      $display("%0s", msg);
+    end
+    check_W(tick, res, msg);
     correct = correct & res;
     if(res == 0) begin
       $display("%0s", msg);

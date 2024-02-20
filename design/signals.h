@@ -28,6 +28,17 @@
 `define E_ALU_RES           e_alu_res
 `define E_BR_TAKEN          e_br_taken
 
+`define M_PC                m_pc
+`define M_ADDRESS           m_address
+`define M_RW                dmem_rw
+`define M_SIZE_ENCODED      access_size
+`define M_DATA              mem_data
+
+`define W_PC                w_pc
+`define W_ENABLE            r_write_enable
+`define W_DESTINATION       r_write_destination
+`define W_DATA              r_write_data
+
 // ----- signals -----
 
 // ----- design -----

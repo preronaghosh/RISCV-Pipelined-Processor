@@ -29,18 +29,27 @@ void nextCycle() {
   top->eval();
 }
 
-void test_reset_and_initial_pc() {
+void test_reset_and_initial_pc_and_wb() {
   top->reset = 1;
   for(int i = 0; i < 5; i++) nextCycle();
+
+  std::cout << "addi	x1,x0,0" << std::endl;
   assertm(top->F_PC == 0x01000000, "the first PC after reset should be 32'h01000000, got " << std::hex << top->F_PC);
   assertm(top->F_INSN == 0x00000093, "the first instruction should be 32'h00000093, got " << std::hex << top->F_INSN);
-  assertm(top->D_PC == 0x01000000, "the first PC after reset should be 32'h01000000, got " << std::hex << top->D_PC);
+  assertm(top->W_PC == 0x01000000, "W_PC should be the same as F_PC for pd4, expected " << top->F_PC << ", got " << std::hex << top->W_PC);
+  assertm(top->W_ENABLE == 1, "W_ENABLE should be 1, got " << top->W_ENABLE);
+  assertm(top->W_DESTINATION == 1, "W_DESTINATION should be 1, got " << top->W_DESTINATION);
+  assertm(top->W_DATA == 0, "W_DATA should be 0, got " << top->W_DATA);
 
   top->reset = 0;
   nextCycle();
+  std::cout << "addi	x2,x0,0" << std::endl;
   assertm(top->F_PC == 0x01000004, "PC should increment by 4, expect 32'h01000004, got " << std::hex << top->F_PC);
   assertm(top->F_INSN == 0x00000113, "the second instruction should be 32'h00000113, got " << std::hex << top->F_INSN);
-  assertm(top->D_PC == 0x01000004, "PC should increment by 4, expect 32'h01000004, got " << std::hex << top->D_PC);
+  assertm(top->W_PC == 0x01000004, "W_PC should be the same as F_PC for pd4, expected " << top->F_PC << ", got " << std::hex << top->W_PC);
+  assertm(top->W_ENABLE == 1, "W_ENABLE should be 1, got " << top->W_ENABLE);
+  assertm(top->W_DESTINATION == 2, "W_DESTINATION should be 2, got " << top->W_DESTINATION);
+  assertm(top->W_DATA == 0, "W_DATA should be 0, got " << top->W_DATA);
 }
 
 int main(int argc, char** argv) {
@@ -55,7 +64,7 @@ int main(int argc, char** argv) {
   // set the scope correctly so that we can access the clock in C testbench
   svSetScope(svGetScopeFromName("TOP.top.clkg"));
   top->reset = 1;
-  test_reset_and_initial_pc();
+  test_reset_and_initial_pc_and_wb();
 
   std::cout << "Test passed" << std::endl;
 

@@ -135,3 +135,72 @@ task check_E;
     end
   end
 endtask
+
+task check_M;
+  input integer idx;
+  output reg res;
+  output reg[4095:0] msg;
+  begin : check_M_func
+    reg[31:0]       pc;
+    reg[31:0]       address;
+    reg[0:0]        rw;
+    reg[1:0]        size_encoded;
+    reg[31:0]       data;
+ 
+    reg[127:0] p;
+    p = pattern[idx][`__M_RNG];
+    
+    pc              = p[`__M_PC];
+    address         = p[`__M_ADDRESS];
+    rw              = p[`__M_RW];
+    size_encoded    = p[`__M_SIZE_ENCODED];
+    data            = p[`__M_DATA];
+    if(
+      (^pc !== 1'bx && pc !== dut.core.`M_PC) ||
+      (^address !== 1'bx && address !== dut.core.`M_ADDRESS) ||
+      (^rw !== 1'bx && rw !== dut.core.`M_RW) ||
+      (^size_encoded !== 1'bx && size_encoded !== dut.core.`M_SIZE_ENCODED) ||
+      (^data !== 1'bx && data !== dut.core.`M_DATA) 
+    ) begin
+      $sformat(msg, "M stage mismatch: expected PC=%x, ADDRESS=%x, RW=%x, SIZE_ENCODED=%x, DATA=%x, got PC=%x, ADDRESS=%x, RW=%x, SIZE_ENCODED=%x, DATA=%x", 
+        pc, address, rw, size_encoded, data,
+        dut.core.`M_PC, dut.core.`M_ADDRESS, dut.core.`M_RW, dut.core.`M_SIZE_ENCODED, dut.core.`M_DATA);
+      res = 0;
+    end else begin
+      res = 1;
+    end
+  end
+endtask
+
+task check_W;
+  input integer idx;
+  output reg res;
+  output reg[4095:0] msg;
+  begin : check_W_func
+    reg[31:0]       pc;
+    reg[0:0]        enable;
+    reg[4:0]        destination;
+    reg[31:0]       data;
+ 
+    reg[127:0] p;
+    p = pattern[idx][`__W_RNG];
+    
+    pc              = p[`__W_PC];
+    enable          = p[`__W_ENABLE];
+    destination     = p[`__W_DESTINATION];
+    data            = p[`__W_DATA];
+    if(
+      (^pc !== 1'bx && pc !== dut.core.`W_PC) ||
+      (^enable !== 1'bx && enable !== dut.core.`W_ENABLE) ||
+      (^destination !== 1'bx && destination !== dut.core.`W_DESTINATION) ||
+      (^data !== 1'bx && data !== dut.core.`W_DATA) 
+    ) begin
+      $sformat(msg, "W stage mismatch: expected PC=%x, ENABLE=%x, DESTINATION=%x, DATA=%x, got PC=%x, ENABLE=%x, DESTINATION=%x, DATA=%x", 
+        pc, enable, destination, data,
+        dut.core.`W_PC, dut.core.`W_ENABLE, dut.core.`W_DESTINATION, dut.core.`W_DATA);
+      res = 0;
+    end else begin
+      res = 1;
+    end
+  end
+endtask

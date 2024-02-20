@@ -6,3 +6,5 @@ branch_comparator.v
 control_signals.v
 mux_to_alu.v
 alu.v
+mux_write_back.v
+dmemory.v

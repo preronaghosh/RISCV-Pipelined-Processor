@@ -1,7 +1,3 @@
-/*
-PCSel : pc+1 or ALU 
-*/
-
 module control_signals (
   input wire [31:0] inst,
   input wire BrEq,
@@ -11,7 +7,11 @@ module control_signals (
   output reg [3:0] ALUSel,
   output reg PCSel,
   output reg write_enable,
-  output reg branch_taken
+  output reg branch_taken,
+  output reg [1:0] access_size,
+  output reg UnsignedSel,
+  output reg dmem_rw, 
+  output reg [1:0] WBSel
 );
 
 reg [6:0] opcode;
@@ -25,6 +25,10 @@ begin
   PCSel = 0;
   write_enable = 0;
   branch_taken = 0;
+  access_size = 0;
+  UnsignedSel = 0;
+  dmem_rw = 0;
+  WBSel = 0;
 end
 
 always @(inst or BrEq or BrLT) 
@@ -33,14 +37,19 @@ begin
     branch_taken = 0;
     write_enable = 0;
     ALUSel = 0;
+    access_size = 0;
     case(opcode)
       // R type
       7'b0110011 : 
       begin
         PCSel = 0;
+        access_size = 0;
+        dmem_rw = 0;
+        UnsignedSel = 0;
         ASel = 2'b11; // rs1
         BSel = 2'b01; // rs2
-        write_enable = 1'b0;
+        write_enable = 1'b1;
+        WBSel = 2'b01;
 
         if (inst[14:12] == 3'b000 && inst[30] == 0) // add
           ALUSel = 4'b0000;
@@ -84,6 +93,16 @@ begin
         ASel = 2'b11;
         BSel = 2'b10;
         write_enable = 1'b0;
+        dmem_rw = 1'b1;
+        UnsignedSel = 0;
+        WBSel = 0;
+
+        if (inst[14:12] == 3'b000) // sb
+          access_size = 2'b00;
+        else if (inst[14:12] == 3'b001) // sh
+          access_size = 2'b01;
+        else if (inst[14:12] == 3'b010) // sw
+          access_size = 2'b10;
       end
 
       // B type
@@ -93,6 +112,10 @@ begin
         BSel = 2'b10;
         write_enable = 1'b0;
         ALUSel = 4'b0000;
+        WBSel = 2'b10; // pc+4
+        access_size = 0;
+        UnsignedSel = 0;
+        dmem_rw = 0;
         
         if (inst[14:12] == 3'b000) // beq  
         begin
@@ -185,7 +208,11 @@ begin
         BSel = 2'b10;
         PCSel = 0;
         ALUSel = 4'b0000;
-        write_enable = 1'b0;
+        write_enable = 1'b1;
+        WBSel = 2'b01;
+        dmem_rw = 0;
+        UnsignedSel = 0;
+        access_size = 0;
       end
 
       // U type - auipc
@@ -195,7 +222,11 @@ begin
         BSel = 2'b10;
         PCSel = 0;
         ALUSel = 4'b0000;
-        write_enable = 1'b0;
+        write_enable = 1'b1;
+        WBSel = 2'b01;
+        dmem_rw = 0;
+        UnsignedSel = 0;
+        access_size = 0;
       end
 
       // J type jal
@@ -204,8 +235,12 @@ begin
         ASel = 2'b10;
         BSel = 2'b10;
         PCSel = 1'b1;
-        write_enable = 1'b0; 
+        write_enable = 1'b1; 
         ALUSel = 4'b0000;
+        WBSel = 2'b10; // pc+4
+        UnsignedSel = 0;
+        access_size = 0;
+        dmem_rw = 0;
       end
 
       // I type 
@@ -213,9 +248,14 @@ begin
       begin
         ASel = 2'b11;
         BSel = 2'b10;
-        write_enable = 1'b0;
+        write_enable = 1'b1;
         PCSel = 1'b0;
         ALUSel = 0;
+        WBSel = 2'b01; // alu_result
+        access_size = 0;
+        dmem_rw = 0;
+        UnsignedSel = 0;
+
         if (inst[14:12] == 3'b000) // addi
         begin
           ALUSel = 4'b0000;
@@ -271,8 +311,41 @@ begin
         ASel = 2'b11;
         BSel = 2'b10;
         PCSel = 1'b0;
-        write_enable = 1'b0; 
+        write_enable = 1'b1; 
         ALUSel = 4'b0000;
+        WBSel = 0; 
+        dmem_rw = 0;
+
+        if (inst[14:12] == 3'b000) // lb
+        begin
+          access_size = 2'b00;
+          UnsignedSel = 0;
+        end
+        else if (inst[14:12] == 3'b001) // lh
+        begin
+          access_size = 2'b01;
+          UnsignedSel = 0;
+        end
+        else if (inst[14:12] == 3'b010) // lw
+        begin
+          access_size = 2'b10;
+          UnsignedSel = 0;
+        end
+        else if (inst[14:12] == 3'b100) // lbu
+        begin
+          access_size = 2'b00;
+          UnsignedSel = 1'b1;
+        end
+        else if (inst[14:12] == 3'b101) // lhu
+        begin
+          access_size = 2'b01;
+          UnsignedSel = 1'b1;
+        end
+        else 
+        begin
+          access_size = 0;
+          UnsignedSel = 0;
+        end
       end
       
       // I type - jalr
@@ -281,8 +354,12 @@ begin
         ASel = 2'b11;
         BSel = 2'b10;
         PCSel = 1'b1;  
-        write_enable = 1'b0; 
+        write_enable = 1'b1; 
         ALUSel = 4'b0000;
+        dmem_rw = 0;
+        UnsignedSel = 0;
+        access_size = 0;
+        WBSel = 2'b10;
       end
 
       default :
@@ -292,6 +369,10 @@ begin
         PCSel = 0;
         write_enable = 1'b0;
         ALUSel = 0;
+        access_size = 0;
+        UnsignedSel = 0;
+        WBSel = 0;
+        dmem_rw = 0;
       end
     endcase
 end
