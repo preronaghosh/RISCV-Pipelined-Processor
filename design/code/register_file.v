@@ -43,7 +43,6 @@ end
 // write operation - sequential
 always @(posedge clock) 
 begin
-    sp_flag = 0;
     reg_file[0] = 0; // x0 always 0
     if((pc != 32'h01000000) && (reg_file[2] == (32'h01000000 + `MEM_DEPTH)) && (sp_flag != 0))
         $finish;
@@ -51,13 +50,9 @@ begin
     if(reset) // reset all registers
     begin
         for(i = 0; i < 32; i = i + 1) begin
-            for(j = 0; j < 32; j = j + 1) begin
-                if (i==2) // x2 - sp
-                    reg_file[i] = 32'h01000000 + `MEM_DEPTH;
-                else
-                    reg_file[i][j] = 0;
-            end
+            reg_file[i] <= 0;
         end
+        reg_file[2] <= 32'h01000000 + `MEM_DEPTH;
     end
     else if ((write_enable == 1'b1) && (addr_rd != 0)) 
     begin

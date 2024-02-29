@@ -128,7 +128,7 @@ begin
         end
     end
     else 
-        data_out = 0;
+        data_out = data_in;
 end
 
 // store instructions
@@ -137,13 +137,14 @@ begin
     if (read_write == 1'b1) 
     begin
         // sb
-        if(access_size == 2'b00)
+        if(access_size == 2'b00)  
             memory_data[addr] <= data_in[7:0];
 
         else if (access_size == 2'b01) // sh
         begin
             memory_data[addr] <= data_in[7:0];
             memory_data[addr + 1] <= data_in[15:8];
+
         end
 
         else if (access_size == 2'b10) // sw

@@ -112,7 +112,7 @@ begin
         BSel = 2'b10;
         write_enable = 1'b0;
         ALUSel = 4'b0000;
-        WBSel = 2'b10; // pc+4
+        WBSel = 2'b01; // alu_result
         access_size = 0;
         UnsignedSel = 0;
         dmem_rw = 0;
@@ -314,7 +314,7 @@ begin
         write_enable = 1'b1; 
         ALUSel = 4'b0000;
         WBSel = 0; 
-        dmem_rw = 0;
+        dmem_rw = 1'b0; 
 
         if (inst[14:12] == 3'b000) // lb
         begin
@@ -362,7 +362,7 @@ begin
         WBSel = 2'b10;
       end
 
-      default :
+      default : // will also take ecall
       begin
         ASel = 0;
         BSel = 0;
