@@ -1,1 +1,1 @@
-Pipelined RISC-V processor
+Pipelined 5-stage RISC-V processor
