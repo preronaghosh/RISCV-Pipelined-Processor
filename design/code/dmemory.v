@@ -59,31 +59,45 @@ begin
     data_out = 0;
 end
 
+reg [31:0] l_read_address;
+reg [1:0] l_access_size;
+reg l_read_unsign_sel;
+reg l_read_write;
+
+always @(posedge clock) begin
+    l_read_address <= addr;
+    l_access_size <= access_size;
+    l_read_unsign_sel <= UnsignedSel;
+    l_read_write <= read_write;
+end
+
+
 // load instructions
 always @(*)
 begin
-    if (read_write == 0) 
+    data_out = 0;
+    if (l_read_write == 0) 
     begin
         // unsigned loads
-        if (UnsignedSel == 1'b1)
+        if (l_read_unsign_sel == 1'b1)
         begin
             // lbu
-            if(access_size == 2'b00) begin
-                data_out[7:0] = memory_data[addr];
+            if(l_access_size == 2'b00) begin
+                data_out[7:0] = memory_data[l_read_address];
                 data_out[31:8] = 0;
             end
             // lhu
-            else if (access_size == 2'b01) begin
-                data_out[7:0] = memory_data[addr];
-                data_out[15:8] = memory_data[addr + 1];
+            else if (l_access_size == 2'b01) begin
+                data_out[7:0] = memory_data[l_read_address];
+                data_out[15:8] = memory_data[l_read_address + 1];
                 data_out[31:16] = 0;
             end
             // lw
-            else if (access_size == 2'b10) begin
-                data_out[7:0] = memory_data[addr];
-                data_out[15:8] = memory_data[addr + 1];
-                data_out[23:16] = memory_data[addr + 2];
-                data_out[31:24] = memory_data[addr + 3];
+            else if (l_access_size == 2'b10) begin
+                data_out[7:0] = memory_data[l_read_address];
+                data_out[15:8] = memory_data[l_read_address + 1];
+                data_out[23:16] = memory_data[l_read_address + 2];
+                data_out[31:24] = memory_data[l_read_address + 3];
             end
             else 
                 data_out = 0;
@@ -93,34 +107,34 @@ begin
         else 
         begin
             // lb
-            if(access_size == 2'b00) 
+            if(l_access_size == 2'b00) 
             begin
-                data_out[7:0] = memory_data[addr];
+                data_out[7:0] = memory_data[l_read_address];
                 // sign extension
-                if (memory_data[addr][7] == 1'b0)
+                if (memory_data[l_read_address][7] == 1'b0)
                     data_out[31:8] = 0;
                 else
                     data_out[31:8] = 24'hFFFFFF;
             end
 
             // lh
-            else if (access_size == 2'b01) 
+            else if (l_access_size == 2'b01) 
             begin
-                data_out[7:0] = memory_data[addr];
-                data_out[15:8] = memory_data[addr + 1];
+                data_out[7:0] = memory_data[l_read_address];
+                data_out[15:8] = memory_data[l_read_address + 1];
                 // sign extension
-                if (memory_data[addr + 1][7] == 1'b0)
+                if (memory_data[l_read_address + 1][7] == 1'b0)
                     data_out[31:16] = 0;
                 else
                     data_out[31:16] = 16'hFFFF;
             end
 
             // lw
-            else if (access_size == 2'b10) begin
-                data_out[7:0] = memory_data[addr];
-                data_out[15:8] = memory_data[addr + 1];
-                data_out[23:16] = memory_data[addr + 2];
-                data_out[31:24] = memory_data[addr + 3];
+            else if (l_access_size == 2'b10) begin
+                data_out[7:0] = memory_data[l_read_address];
+                data_out[15:8] = memory_data[l_read_address + 1];
+                data_out[23:16] = memory_data[l_read_address + 2];
+                data_out[31:24] = memory_data[l_read_address + 3];
             end
 
             else

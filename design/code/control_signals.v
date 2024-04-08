@@ -1,3 +1,17 @@
+
+/*
+ASel:
+rs1 11
+pc 10
+0 00
+
+BSel:
+rs2 01
+imm 10
+shamt 00
+*/
+
+
 module control_signals (
   input wire [31:0] inst,
   input wire BrEq,
@@ -10,7 +24,7 @@ module control_signals (
   output reg branch_taken,
   output reg [1:0] access_size,
   output reg UnsignedSel,
-  output reg dmem_rw, 
+  output reg dmem_rw,
   output reg [1:0] WBSel
 );
 
@@ -49,12 +63,12 @@ begin
         ASel = 2'b11; // rs1
         BSel = 2'b01; // rs2
         write_enable = 1'b1;
-        WBSel = 2'b01;
+        WBSel = 2'b01; // alu result from writeback
 
         if (inst[14:12] == 3'b000 && inst[30] == 0) // add
           ALUSel = 4'b0000;
         
-        else if (inst[14:12] == 3'b000 && inst[30] == 0) // sub 
+        else if (inst[14:12] == 3'b000 && inst[30] == 1) // sub 
           ALUSel = 4'b0001;
 
         else if (inst[14:12] == 3'b100) // xor
@@ -108,8 +122,8 @@ begin
       // B type
       7'b1100011 :
       begin
-        ASel = 2'b10;
-        BSel = 2'b10;
+        ASel = 2'b10; // pc
+        BSel = 2'b10; // imm
         write_enable = 1'b0;
         ALUSel = 4'b0000;
         WBSel = 2'b01; // alu_result
@@ -232,8 +246,8 @@ begin
       // J type jal
       7'b1101111 :
       begin
-        ASel = 2'b10;
-        BSel = 2'b10;
+        ASel = 2'b10; // pc
+        BSel = 2'b10; // imm
         PCSel = 1'b1;
         write_enable = 1'b1; 
         ALUSel = 4'b0000;
@@ -294,7 +308,7 @@ begin
 
         else if (inst[14:12] == 3'b101) // funct3 = 0x5
         begin
-          BSel = 0; // shamt
+          BSel = 2'b00; // shamt
           if (inst[30] == 1'b0) // srli
             ALUSel = 4'b0101;
           else if (inst[30] == 1'b1) // srai
@@ -308,8 +322,8 @@ begin
       // I type - loads
       7'b0000011 : 
       begin
-        ASel = 2'b11;
-        BSel = 2'b10;
+        ASel = 2'b11; // rs1
+        BSel = 2'b10; // imm
         PCSel = 1'b0;
         write_enable = 1'b1; 
         ALUSel = 4'b0000;
@@ -359,7 +373,7 @@ begin
         dmem_rw = 0;
         UnsignedSel = 0;
         access_size = 0;
-        WBSel = 2'b10;
+        WBSel = 2'b10; // next_pc
       end
 
       default : // will also take ecall
