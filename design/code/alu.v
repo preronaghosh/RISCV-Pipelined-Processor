@@ -57,13 +57,9 @@ begin
                 out = 0;
             end
 
-        // arithmetic left shift
-        4'b1001:
-            out = $signed(inp1) <<< inp2;
-
         // arithmetic right shift
         4'b1010:
-            out = $signed(inp1) >>> inp2;
+            out = $signed(inp1) >>> inp2[4:0];
 
         default :
             out = 0;

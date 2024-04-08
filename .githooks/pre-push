@@ -1,6 +1,0 @@
-#!/bin/bash
-
-if [[ $(git status --porcelain) ]]; then
- echo "ACTION REQUIRED: you have files that are unstaged or not added. You must handle these files before pushing for submission. You can use "git status" to check the details. Aborting.";
- exit 1;
-fi

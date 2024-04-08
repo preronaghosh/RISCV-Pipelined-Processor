@@ -8,3 +8,5 @@ mux_to_alu.v
 alu.v
 mux_write_back.v
 dmemory.v
+forwarding_logic.v
+stalling.v

@@ -1,14 +1,13 @@
 module imemory (
     input wire clock,
     input wire [31:0] address,
-    input wire [31:0] data_in,
     output reg [31:0] data_out,
     input wire read_write
 );
 
-integer line_ctr;
-integer ctr;
-integer i;
+integer line_ctr; // i
+integer ctr; // j
+integer i; // k
 reg [31:0] start_addr = 32'h01000000;
 reg [31:0] pc;
 reg [31:0] temp_arr_ins [0:`LINE_COUNT-1];
@@ -39,7 +38,7 @@ begin
     end
 end
 
-always @(address or data_in) 
+always @(address)
 begin   
     pc = address - start_addr;
     data_out = 0;
