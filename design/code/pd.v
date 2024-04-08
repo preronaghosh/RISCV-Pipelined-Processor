@@ -49,7 +49,7 @@ begin
       end
       else 
       begin
-        e_pc <= d_pc; 
+        e_pc <= 0; 
         m_pc <= e_pc;
         w_pc <= m_pc;
       end
@@ -68,6 +68,7 @@ begin
       // if jump/branch, 0 for insn in all following stages
       if(x_insn[6:0] == 7'b1101111 || x_insn[6:0] == 7'b1100111 || e_br_taken) 
       begin
+        // flushing to complete zero - not the same as trace files though
         d_insn <= 0;
         x_insn <= 0;
         m_insn <= x_insn;

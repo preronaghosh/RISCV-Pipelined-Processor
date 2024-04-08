@@ -23,13 +23,13 @@ begin
         4'b0011 :
             out = inp1 | inp2;
 
-        // logical left shift
+        // logical left shift (sll)
         4'b0100 :
-            out = inp1 << inp2;
+            out = inp1 << inp2[4:0];
 
-        // logical right shift
+        // logical right shift (sra)
         4'b0101 :
-            out = inp1 >> inp2;
+            out = inp1 >> inp2[4:0];
 
         // xor
         4'b0110:
